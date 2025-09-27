@@ -1,9 +1,9 @@
 import Providers from "@/components/providers"; // your provider that includes WagmiProvider, RainbowKitProvider
-import Navbar from "@/app/component/Navbar/Navbar";
-import Footer from "@/app/component/Footer/Footer";
+import Navbar from "@/components/Navbar";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import type { Metadata } from "next";
+import Footer from "./component/Footer/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

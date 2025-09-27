@@ -1,0 +1,22 @@
+# Core dependencies (essential for current bot functionality)
+python-dotenv==1.0.1
+web3==6.9.0
+requests==2.32.3
+pandas==2.2.3
+numpy==2.1.2
+
+# Solana dependencies
+solana==0.35.0
+solders==0.21.0
+
+# Fix deprecation warnings
+setuptools<81
+
+# Optional dependencies for future enhancements (install separately if needed)
+# Uncomment these when implementing microservices architecture:
+# aiohttp==3.9.1
+# pydantic==2.5.0
+# pydantic-settings==2.1.0
+# redis==5.0.1
+# fastapi==0.104.1
+# uvicorn==0.24.0

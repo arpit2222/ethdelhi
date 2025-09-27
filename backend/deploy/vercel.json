@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "name":"trading-bot-dashboard",
+  
+  "builds": [
+    {
+      "src": "proxy/index.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/proxy/index.js"
+    }
+  ],
+  "env": {
+    "AUTHORIZATION": "Bearer zD4kSROZX25PtQRHrYf9aykc6EFPt4wp"
+  }
+}

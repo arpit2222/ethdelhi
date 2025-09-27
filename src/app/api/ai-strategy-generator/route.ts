@@ -1,27 +1,14 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextResponse } from 'next/server';
 
 interface AIStrategyRequest {
   userInput: string;
   currentPrice?: number;
 }
 
-interface AIStrategyResponse {
-  success: boolean;
-  strategy?: {
-    type: string;
-    description: string;
-    parameters: any;
-    confidence: number;
-  };
-  error?: string;
-}
-
 // AI Strategy Generator (simplified version without 0G SDK for now)
 async function generateAIStrategy(userInput: string, currentPrice?: number): Promise<any> {
-  // For now, use rule-based AI until we can integrate 0G SDK
   const input = userInput.toLowerCase();
-  
-  // Detect strategy type from user input
+
   if (input.includes("gradually") || input.includes("over time") || input.includes("twap")) {
     return {
       strategy_type: "TWAP",
@@ -32,13 +19,13 @@ async function generateAIStrategy(userInput: string, currentPrice?: number): Pro
         start_price: currentPrice || 3500,
         end_price: (currentPrice || 3500) * (input.includes("sell") ? 1.05 : 0.95),
         duration_hours: extractDuration(input) || 1,
-        slices: 5
+        slices: 5,
       },
       confidence: 85,
-      reasoning: "TWAP strategy minimizes market impact by spreading trades over time"
+      reasoning: "TWAP strategy minimizes market impact by spreading trades over time",
     };
   }
-  
+
   if (input.includes("ladder") || input.includes("multiple levels") || input.includes("steps")) {
     return {
       strategy_type: "Ladder",
@@ -48,13 +35,13 @@ async function generateAIStrategy(userInput: string, currentPrice?: number): Pro
         amount: extractAmount(input) || 0.2,
         start_price: currentPrice || 3500,
         end_price: (currentPrice || 3500) * (input.includes("sell") ? 1.1 : 0.9),
-        steps: 10
+        steps: 10,
       },
       confidence: 80,
-      reasoning: "Ladder strategy captures price movements across multiple levels"
+      reasoning: "Ladder strategy captures price movements across multiple levels",
     };
   }
-  
+
   if (input.includes("dutch") || input.includes("auction") || input.includes("decreasing")) {
     return {
       strategy_type: "Dutch",
@@ -63,13 +50,13 @@ async function generateAIStrategy(userInput: string, currentPrice?: number): Pro
         side: "SELL",
         amount: extractAmount(input) || 0.15,
         start_price: (currentPrice || 3500) * 1.05,
-        duration_hours: extractDuration(input) || 0.5
+        duration_hours: extractDuration(input) || 0.5,
       },
       confidence: 75,
-      reasoning: "Dutch auction starts high and decreases to find optimal selling price"
+      reasoning: "Dutch auction starts high and decreases to find optimal selling price",
     };
   }
-  
+
   // Default simple strategy
   return {
     strategy_type: "Simple",
@@ -77,10 +64,10 @@ async function generateAIStrategy(userInput: string, currentPrice?: number): Pro
     parameters: {
       side: input.includes("sell") ? "SELL" : "BUY",
       amount: extractAmount(input) || 0.1,
-      limit_price: currentPrice || 3500
+      limit_price: currentPrice || 3500,
     },
     confidence: 70,
-    reasoning: "Simple strategy for immediate execution at current market price"
+    reasoning: "Simple strategy for immediate execution at current market price",
   };
 }
 
@@ -97,47 +84,36 @@ function extractDuration(input: string): number | null {
   return null;
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<AIStrategyResponse>) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
+  });
+}
 
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
-  }
-
-  if (req.method !== 'POST') {
-    res.status(405).json({ success: false, error: 'Method not allowed' });
-    return;
-  }
-
+export async function POST(req: Request) {
   try {
-    const { userInput, currentPrice }: AIStrategyRequest = req.body;
-
+    const { userInput, currentPrice } = (await req.json()) as AIStrategyRequest;
     if (!userInput) {
-      res.status(400).json({ success: false, error: 'User input is required' });
-      return;
+      return NextResponse.json({ success: false, error: 'User input is required' }, { status: 400 });
     }
 
-    // Generate AI strategy
     const strategy = await generateAIStrategy(userInput, currentPrice);
 
-    res.status(200).json({
+    return NextResponse.json({
       success: true,
       strategy: {
         type: strategy.strategy_type,
         description: strategy.description,
         parameters: strategy.parameters,
-        confidence: strategy.confidence
-      }
+        confidence: strategy.confidence,
+      },
     });
-
-  } catch (error) {
-    console.error('AI Strategy Generation Error:', error);
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error?.message || 'Unknown error' }, { status: 500 });
   }
 }

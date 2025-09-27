@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 export default function Navbar(): JSX.Element {
@@ -9,10 +10,8 @@ export default function Navbar(): JSX.Element {
             <span className="text-indigo-400">Defi</span>QuantHQ
           </div>
           <nav className="hidden md:flex items-center space-x-8 text-sm font-medium">
-            <a href="#marketplace" className="text-gray-300 hover:text-indigo-400 transition">Marketplace</a>
-            <a href="#ide" className="text-gray-300 hover:text-indigo-400 transition">IDE</a>
-            <a href="#dashboard" className="text-gray-300 hover:text-indigo-400 transition">Dashboard</a>
-            <a href="#bridge" className="text-gray-300 hover:text-indigo-400 transition">Bridge</a>
+            <Link href="/marketplace" className="text-gray-300 hover:text-indigo-400 transition">Marketplace</Link>
+            <Link href="/lop" className="text-gray-300 hover:text-indigo-400 transition">LimitOP</Link>
           </nav>
           <ConnectButton />
         </div>

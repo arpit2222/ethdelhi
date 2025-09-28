@@ -1,0 +1,237 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+
+interface IOracle {
+    function verifyProof(bytes calldata proof) external view returns (bool);
+}
+
+contract StrategyINFT is ERC721, Ownable, ReentrancyGuard {
+    using Counters for Counters.Counter;
+    
+    // State variables
+    Counters.Counter private _tokenIdCounter;
+    
+    struct StrategyMetadata {
+        bytes32 metadataHash;
+        string encryptedURI;
+        uint256 confidence;
+        string strategyType;
+        bool isActive;
+        uint256 createdAt;
+        address creator;
+        uint256 price;
+        uint256 totalPurchases;
+        uint256 totalEarnings;
+        address stockTokenAddress; // Optional stock token integration
+    }
+    
+    mapping(uint256 => StrategyMetadata) private _strategyMetadata;
+    mapping(uint256 => mapping(address => bytes)) private _authorizations;
+    mapping(address => uint256[]) private _creatorStrategies;
+    mapping(address => uint256[]) private _ownerStrategies;
+    mapping(uint256 => address) public stockTokenLinks; // tokenId => stockTokenAddress
+    
+    address public oracle;
+    uint256 public platformFee = 250; // 2.5%
+    address public platformWallet;
+    
+    // Events
+    event StrategyMinted(
+        uint256 indexed tokenId,
+        address indexed creator,
+        string strategyType,
+        uint256 confidence,
+        uint256 price
+    );
+    event StrategyPurchased(
+        uint256 indexed tokenId,
+        address indexed buyer,
+        address indexed seller,
+        uint256 price
+    );
+    event MetadataUpdated(uint256 indexed tokenId, bytes32 newHash);
+    event UsageAuthorized(uint256 indexed tokenId, address indexed executor);
+    event StrategyExecuted(uint256 indexed tokenId, address indexed executor);
+    event StockTokenLinked(uint256 indexed tokenId, address indexed stockTokenAddress);
+    
+    constructor(
+        string memory name,
+        string memory symbol,
+        address _oracle,
+        address _platformWallet
+    ) ERC721(name, symbol) {
+        oracle = _oracle;
+        platformWallet = _platformWallet;
+    }
+    
+    function mintStrategy(
+        address to,
+        string calldata encryptedURI,
+        bytes32 metadataHash,
+        uint256 confidence,
+        string calldata strategyType,
+        uint256 price
+    ) external onlyOwner returns (uint256) {
+        uint256 tokenId = _tokenIdCounter.current();
+        _tokenIdCounter.increment();
+        
+        _safeMint(to, tokenId);
+        
+        _strategyMetadata[tokenId] = StrategyMetadata({
+            metadataHash: metadataHash,
+            encryptedURI: encryptedURI,
+            confidence: confidence,
+            strategyType: strategyType,
+            isActive: true,
+            createdAt: block.timestamp,
+            creator: to,
+            price: price,
+            totalPurchases: 0,
+            totalEarnings: 0,
+            stockTokenAddress: address(0)
+        });
+        
+        _creatorStrategies[to].push(tokenId);
+        _ownerStrategies[to].push(tokenId);
+        
+        emit StrategyMinted(tokenId, to, strategyType, confidence, price);
+        
+        return tokenId;
+    }
+    
+    function purchaseStrategy(
+        uint256 tokenId,
+        bytes calldata sealedKey,
+        bytes calldata proof
+    ) external payable nonReentrant {
+        StrategyMetadata storage metadata = _strategyMetadata[tokenId];
+        require(metadata.isActive, "Strategy not active");
+        require(msg.value >= metadata.price, "Insufficient payment");
+        require(IOracle(oracle).verifyProof(proof), "Invalid proof");
+        
+        address seller = ownerOf(tokenId);
+        require(seller != msg.sender, "Cannot buy own strategy");
+        
+        // Calculate platform fee
+        uint256 fee = (msg.value * platformFee) / 10000;
+        uint256 sellerAmount = msg.value - fee;
+        
+        // Update metadata access for new owner
+        _updateMetadataAccess(tokenId, msg.sender, sealedKey, proof);
+        
+        // Transfer token ownership
+        _transfer(seller, msg.sender, tokenId);
+        
+        // Update strategy stats
+        metadata.totalPurchases += 1;
+        metadata.totalEarnings += sellerAmount;
+        
+        // Update owner arrays
+        _removeFromOwnerStrategies(seller, tokenId);
+        _ownerStrategies[msg.sender].push(tokenId);
+        
+        // Transfer payments
+        payable(platformWallet).transfer(fee);
+        payable(seller).transfer(sellerAmount);
+        
+        emit StrategyPurchased(tokenId, msg.sender, seller, msg.value);
+    }
+    
+    function authorizeUsage(
+        uint256 tokenId,
+        address executor,
+        bytes calldata permissions
+    ) external {
+        require(ownerOf(tokenId) == msg.sender, "Not owner");
+        _authorizations[tokenId][executor] = permissions;
+        emit UsageAuthorized(tokenId, executor);
+    }
+    
+    function executeStrategy(
+        uint256 tokenId,
+        bytes calldata inputData,
+        bytes calldata proof
+    ) external {
+        require(ownerOf(tokenId) == msg.sender || 
+                _authorizations[tokenId][msg.sender].length > 0, 
+                "Not authorized to execute");
+        require(IOracle(oracle).verifyProof(proof), "Invalid execution proof");
+        
+        emit StrategyExecuted(tokenId, msg.sender);
+    }
+    
+    function linkStockToken(uint256 tokenId, address stockTokenAddress) external {
+        require(ownerOf(tokenId) == msg.sender || owner() == msg.sender, "StrategyINFT: Not authorized");
+        require(stockTokenAddress != address(0), "StrategyINFT: Invalid stock token address");
+        require(stockTokenLinks[tokenId] == address(0), "StrategyINFT: Already linked");
+        
+        stockTokenLinks[tokenId] = stockTokenAddress;
+        _strategyMetadata[tokenId].stockTokenAddress = stockTokenAddress;
+        
+        emit StockTokenLinked(tokenId, stockTokenAddress);
+    }
+    
+    function _updateMetadataAccess(
+        uint256 tokenId,
+        address newOwner,
+        bytes calldata sealedKey,
+        bytes calldata proof
+    ) internal {
+        // Extract new metadata hash from proof
+        bytes32 newHash = bytes32(proof[0:32]);
+        _strategyMetadata[tokenId].metadataHash = newHash;
+        
+        // Update encrypted URI if provided in proof
+        if (proof.length > 64) {
+            string memory newURI = string(proof[64:]);
+            _strategyMetadata[tokenId].encryptedURI = newURI;
+        }
+        
+        emit MetadataUpdated(tokenId, newHash);
+    }
+    
+    function _removeFromOwnerStrategies(address owner, uint256 tokenId) internal {
+        uint256[] storage strategies = _ownerStrategies[owner];
+        for (uint256 i = 0; i < strategies.length; i++) {
+            if (strategies[i] == tokenId) {
+                strategies[i] = strategies[strategies.length - 1];
+                strategies.pop();
+                break;
+            }
+        }
+    }
+    
+    // View functions
+    function getStrategyMetadata(uint256 tokenId) external view returns (StrategyMetadata memory) {
+        return _strategyMetadata[tokenId];
+    }
+    
+    function getCreatorStrategies(address creator) external view returns (uint256[] memory) {
+        return _creatorStrategies[creator];
+    }
+    
+    function getOwnerStrategies(address owner) external view returns (uint256[] memory) {
+        return _ownerStrategies[owner];
+    }
+    
+    function getMetadataHash(uint256 tokenId) external view returns (bytes32) {
+        return _strategyMetadata[tokenId].metadataHash;
+    }
+    
+    function getEncryptedURI(uint256 tokenId) external view returns (string memory) {
+        return _strategyMetadata[tokenId].encryptedURI;
+    }
+    
+    function getLinkedStockToken(uint256 tokenId) external view returns (address) {
+        return stockTokenLinks[tokenId];
+    }
+    
+    function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
+        return super.supportsInterface(interfaceId);
+    }
+}

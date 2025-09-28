@@ -1,0 +1,40 @@
+{
+  "wallet": {
+    "address": "0xcab2f7D7a903B124E2dD2121BCf779aaA4499737",
+    "privateKey": "0396f24b3205f64d822506c09e4bfb1b3d24a7fe574e2d903e1460812b352c75"
+  },
+  "networks": {
+    "44787": {
+      "name": "Celo Alfajores",
+      "rpcUrl": "https://alfajores-forno.celo-testnet.org",
+      "chainId": 44787,
+      "bridgeFactoryAddress": "0x0000000000000000000000000000000000000000",
+      "escrowTemplateAddress": "0x0000000000000000000000000000000000000000",
+      "explorer": "https://alfajores.celoscan.io",
+      "faucet": "https://faucet.celo.org/alfajores",
+      "nativeToken": "CELO"
+    },
+    "80001": {
+      "name": "Polygon Mumbai",
+      "rpcUrl": "https://rpc-mumbai.maticvigil.com",
+      "chainId": 80001,
+      "bridgeFactoryAddress": "0x0000000000000000000000000000000000000000",
+      "escrowTemplateAddress": "0x0000000000000000000000000000000000000000",
+      "explorer": "https://mumbai.polygonscan.com",
+      "faucet": "https://faucet.polygon.technology/",
+      "nativeToken": "MATIC"
+    },
+    "11155111": {
+      "name": "Ethereum Sepolia",
+      "rpcUrl": "https://sepolia.infura.io/v3/YOUR_INFURA_KEY",
+      "chainId": 11155111,
+      "bridgeFactoryAddress": "0x0000000000000000000000000000000000000000",
+      "escrowTemplateAddress": "0x0000000000000000000000000000000000000000",
+      "explorer": "https://sepolia.etherscan.io",
+      "faucet": "https://sepoliafaucet.com/",
+      "nativeToken": "ETH"
+    }
+  },
+  "deploymentStatus": "ready_for_manual_deployment",
+  "setupDate": "2025-09-28T00:52:04.625Z"
+}

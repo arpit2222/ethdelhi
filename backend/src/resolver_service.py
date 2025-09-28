@@ -378,3 +378,4 @@ class ResolverService:
                               for bid in bids if bid.resolver_address == resolver_address]),
             'total_orders': len(self.active_orders)
         }
+

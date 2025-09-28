@@ -455,3 +455,4 @@ class BridgeCoordinator:
         except Exception as e:
             self.logger.error(f"Error getting bridge status for {transfer_id}: {e}")
             return {"error": str(e)}
+

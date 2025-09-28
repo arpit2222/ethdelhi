@@ -1,0 +1,10 @@
+# Ignore legacy API files (migrated to App Router route handlers)
+src/app/api/*.ts
+src/app/api/bot/*.ts
+
+# Known problematic binary-parsed file
+src/lib/trading/StrategyMetadataManager.ts
+
+# Generated and build outputs
+.next/
+node_modules/

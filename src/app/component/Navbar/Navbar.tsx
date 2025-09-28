@@ -11,9 +11,7 @@ export default function Navbar(): JSX.Element {
           </Link>
           <nav className="hidden md:flex items-center space-x-8 text-sm font-medium">
             <Link href="/marketplace" className="text-gray-300 hover:text-indigo-400 transition">Marketplace</Link>
-            <Link href="/ide" className="text-gray-300 hover:text-indigo-400 transition">IDE</Link>
-            <Link href="/dashboard" className="text-gray-300 hover:text-indigo-400 transition">Dashboard</Link>
-            <Link href="/bridge" className="text-gray-300 hover:text-indigo-400 transition">Bridge</Link>
+            <Link href="/lop" className="text-gray-300 hover:text-indigo-400 transition">LimitOP</Link>
           </nav>
           <ConnectButton />
         </div>

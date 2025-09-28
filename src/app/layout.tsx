@@ -1,7 +1,9 @@
 import Providers from "@/components/providers"; // your provider that includes WagmiProvider, RainbowKitProvider
+import Navbar from "@/components/Navbar";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import type { Metadata } from "next";
+import Footer from "./component/Footer/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,8 +27,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Providers>{children}</Providers> {/* Wrap children in Providers */}
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-900 text-gray-100`}>
+        <Providers>
+          <Navbar />
+          <main className="min-h-[calc(100vh-160px)] pt-24">{children}</main>
+          <Footer />
+        </Providers>
       </body>
     </html>
   );

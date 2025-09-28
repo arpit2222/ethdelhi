@@ -348,3 +348,4 @@ export class StockTokenManager {
     return crypto.createHash('sha256').update(documentContent).digest('hex');
   }
 }
+

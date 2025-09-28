@@ -449,3 +449,4 @@ export default function StocksPage(): JSX.Element {
     </div>
   )
 }
+

@@ -121,3 +121,4 @@ export class StockMetadataService {
 declare global {
   var stockMetadataCache: Map<string, StockMetadata> | undefined;
 }
+

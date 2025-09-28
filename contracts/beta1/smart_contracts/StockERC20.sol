@@ -100,3 +100,4 @@ contract StockERC20 is ERC20, Ownable, ReentrancyGuard {
         return stockMetadata.creator;
     }
 }
+

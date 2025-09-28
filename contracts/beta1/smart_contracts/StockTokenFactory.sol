@@ -164,3 +164,4 @@ contract StockTokenFactory is Ownable, ReentrancyGuard {
         return new string[](0); // Placeholder - implement with off-chain indexing
     }
 }
+

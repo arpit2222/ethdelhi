@@ -187,3 +187,4 @@ contract RWAEscrow is ReentrancyGuard, Ownable {
         IERC20(token).safeTransfer(owner(), amount);
     }
 }
+

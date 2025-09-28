@@ -349,3 +349,4 @@ async function storeBidResult(bidResult: any): Promise<void> {
   // This would store the bid result in ZeroG
   console.log('Storing bid result:', bidResult);
 }
+

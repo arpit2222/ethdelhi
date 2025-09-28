@@ -7,9 +7,9 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 const links: Array<{ href: string; label: string }> = [
   { href: "/", label: "Home" },
-  { href: "/marketplace", label: "Marketplace" },
-  { href: "/stokes", label: "Stokes" },
   { href: "/ide", label: "IDE" },
+  { href: "/stokes", label: "Stokes" },
+  { href: "/lop", label: "LOP" },
 ];
 
 export default function Navbar() {

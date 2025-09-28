@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 
 interface HeroProps {
   className?: string;
@@ -21,13 +22,17 @@ export default function Hero({ className }: HeroProps): JSX.Element {
             A decentralized algorithm marketplace combined with cross-chain RWA trading. Developers create, the community invests, and everyone profits together.
           </p>
           <div className="flex justify-center space-x-4">
-            <button className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg shadow-xl transition duration-300 transform hover:scale-105 flex items-center space-x-2">
-              <span>Start Creating</span>
-              <ArrowRight className="w-5 h-5" />
-            </button>
-            <button className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-lg shadow-xl transition duration-300 transform hover:scale-105">
-              Browse Strategies
-            </button>
+            <Link href="/ide">
+              <button className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg shadow-xl transition duration-300 transform hover:scale-105 flex items-center space-x-2">
+                <span>Start Creating</span>
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            </Link>
+            <Link href="/marketplace">
+              <button className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-lg shadow-xl transition duration-300 transform hover:scale-105">
+                Browse Strategies
+              </button>
+            </Link>
           </div>
         </section>
     )

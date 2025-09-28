@@ -1,5 +1,5 @@
 ﻿import { NextApiRequest, NextApiResponse } from "next";
-import { marketplaceStrategies } from "../../lib/marketplace-storage";
+import { marketplaceStrategies } from "../../../lib/trading/marketplace-storage";
 
 interface MintStrategyRequest {
   strategy: {

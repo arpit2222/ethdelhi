@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { botState, updatePrice } from '../../lib/botState';
+import { botState, updatePrice } from '../../../lib/trading/botState';
 
 interface SimulationData {
   currentPrice: number;

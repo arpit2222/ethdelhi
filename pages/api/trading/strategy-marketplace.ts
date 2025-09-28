@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { marketplaceStrategies, initializeSampleStrategies } from "../../lib/marketplace-storage";
+import { marketplaceStrategies, initializeSampleStrategies } from "../../../lib/trading/marketplace-storage";
 
 interface MarketplaceResponse {
   success: boolean;

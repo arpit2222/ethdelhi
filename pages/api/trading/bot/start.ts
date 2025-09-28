@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { startBot, stopBot, addStrategy, updatePrice, botState } from '../../../lib/botState';
+import { startBot, stopBot, addStrategy, updatePrice, botState } from '../../../../lib/trading/botState';
 
 interface BotStartRequest {
   mode: 'arbitrum' | 'solana' | 'background';

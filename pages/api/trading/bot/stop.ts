@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { stopBot } from '../../../lib/botState';
+import { stopBot } from '../../../../lib/trading/botState';
 
 interface BotStopResponse {
   success: boolean;

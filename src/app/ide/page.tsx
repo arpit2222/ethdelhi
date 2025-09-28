@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import Editor from "@monaco-editor/react";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+// import { Input } from "@/components/ui/input"; // not currently used
 import { Label } from "@/components/ui/label";
 import { ContractFactory, BrowserProvider } from "ethers";
 
@@ -54,7 +54,12 @@ const YUL_TEMPLATE = `object "CounterYul" {
 }
 `;
 
+// Monaco Editor must be dynamically imported client-side to avoid SSR/hydration issues
+// Type cast to any to avoid requiring type declarations at build time
+const MonacoEditor = dynamic(() => import("@monaco-editor/react").then(m => m.default), { ssr: false }) as any;
+
 export default function IDEPage() {
+  const [mounted, setMounted] = useState<boolean>(false);
   const [language, setLanguage] = useState<Language>("solidity");
   const [source, setSource] = useState<string>("");
   const [isDark, setIsDark] = useState<boolean>(true);
@@ -84,6 +89,11 @@ export default function IDEPage() {
       console.error("ERROR:", msg);
     },
   };
+
+  // Avoid hydration mismatch; only render editor after mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Load & persist editor content per language
   useEffect(() => {
@@ -296,15 +306,21 @@ export default function IDEPage() {
 
       <Card>
         <CardContent className="p-0">
-          <Editor
-            height="55vh"
-            defaultLanguage="plaintext"
-            language="plaintext"
-            value={source}
-            onChange={(val) => setSource(val ?? "")}
-            theme={isDark ? "vs-dark" : "light"}
-            options={{ fontSize: 14, minimap: { enabled: false }, padding: { top: 8, bottom: 8 } as any }}
-          />
+          {mounted ? (
+            <MonacoEditor
+              height="55vh"
+              defaultLanguage="plaintext"
+              language="plaintext"
+              value={source}
+              onChange={(val: string | undefined) => setSource(val ?? "")}
+              theme={isDark ? "vs-dark" : "light"}
+              options={{ fontSize: 14, minimap: { enabled: false }, padding: { top: 8, bottom: 8 } as any }}
+            />
+          ) : (
+            <div className="h-[55vh] flex items-center justify-center text-sm text-gray-400">
+              Loading editor...
+            </div>
+          )}
         </CardContent>
       </Card>
 

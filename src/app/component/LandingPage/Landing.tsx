@@ -39,7 +39,7 @@ function Landing() {
     <div className="bg-gray-900 text-gray-100 font-sans antialiased">
       <Navbar />
       <main>
-        <Hero className="pt-24" />
+        <Hero />
         <PlatformStats />
         <FeaturedAlgorithmsSection algorithms={featuredAlgorithms} />
         <LiveActivityFeed activities={liveActivity} />

@@ -20,7 +20,7 @@ export default function Navbar() {
       <nav className="container mx-auto flex items-center justify-between py-4 px-4">
         <div className="flex items-center gap-3">
           <Link href="/" className="text-lg font-semibold">
-            ETH Delhi
+          <span className="text-indigo-400">Defi</span>QuantHQ
           </Link>
         </div>
         <ul className="hidden md:flex items-center gap-6">

@@ -18,7 +18,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-40 w-full border-b border-gray-800 bg-gray-900/80 backdrop-blur">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
         <Link href="/" className="text-lg font-semibold text-gray-100 tracking-tight">
-          0G Trading
+        <span className="text-indigo-400">Defi</span>QuantHQ
         </Link>
         <nav className="flex items-center gap-1">
           {navItems.map((item) => {
